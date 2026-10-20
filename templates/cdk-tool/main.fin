@@ -1,0 +1,15 @@
+// cdk-tool starter (fin-sdk template). Point `--fin-libs` at the installed
+// SDK's `lib/` and the starter compiles standalone: the bundle carries every
+// module `cdk::std` transitively needs.
+//
+// `calc_eval` is the SDK's four-op arithmetic calculator: scan -> parse ->
+// AST -> IR -> eval. Replace the body with your own tool and keep the import.
+
+import { calc_eval } from cdk::std;
+import { printf } from stdio::std;
+
+fun main() <int> {
+    printf("calc_eval(\"2 + 3 * 4\") = %d\n", calc_eval("2 + 3 * 4"));
+    printf("calc_eval(\"(1 + 2) * 7\") = %d\n", calc_eval("(1 + 2) * 7"));
+    return 0;
+}

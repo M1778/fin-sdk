@@ -1,0 +1,14 @@
+// sample_input.fin -- the lint target for linf_first_rules.fin. This file is
+// DATA for the proof: the proof tokenizes it and reports findings. Three
+// violations are planted on purpose:
+//   * the line after this comment block is over 100 columns
+//   * delete with no new anywhere
+//   * the import `unused_name` that never appears again
+
+let long_non_compliant_line <int> = 0; // this filler comment drags the line past the 100-column limit so the line-length rule fires
+
+import { used_name, unused_name } from shimmer::std;
+
+let prepared <int> = 0;
+delete prepared;
+let settled <int> = used_name;
