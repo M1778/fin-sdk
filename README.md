@@ -78,9 +78,50 @@ this SDK remains the other dogfood goal, owned by the finn toolchain epic
 ## Re-vendoring
 
 ```sh
-./vendor.sh [path-to-fin-checkout]   # default FIN_SRC or ~/Fin
+./vendor.sh --check                       # local inventory + manifest hashes, no writes
+./vendor.sh --check /path/to/Fin           # also compare committed source blobs
+./vendor.sh /path/to/Fin                  # reproduce the current manifest commit
+./vendor.sh /path/to/Fin <full-commit-id>  # deliberately select a new snapshot
 ```
 
-Copies each module byte-exact from `lib/std` at the Fin repo commit named in
-`MANIFEST.md` and re-stamps that manifest with a sha256 per module. Do not
-edit `lib/` in place; re-vendor.
+Requires Bash 4+, `sha256sum`, and, when a source is supplied, Git. Refresh
+without a source argument uses `FIN_SRC` or `~/Fin`. Relative source paths
+resolve from the caller's directory; use `--` before paths beginning with `-`.
+The source must be a Git worktree root containing the selected commit. A
+commit argument must be a full lowercase 40-hex commit ID; the default is the
+existing manifest's cite, **not** the checkout's HEAD.
+
+Refresh reads committed Git blobs, never uncommitted working-tree bytes. It
+validates the exact 23-module bundle/manifest inventory and all selected source
+paths, stages the complete snapshot and new manifest, then replaces them using
+same-filesystem renames. Ordinary failures and catchable signals restore the
+previous files and remove staging files; this is not crash-atomic across the
+two replacements. Do not run concurrent refreshes or builds during replacement.
+If rollback itself fails, the error names the retained backup directory.
+Unexpected/missing local files and malformed/duplicate manifest entries are
+errors rather than silently deleted or repaired. Do not edit `lib/` in place;
+re-vendor. Updating a snapshot does not automatically update `VERSION`.
+
+`--check` is read-only and verifies every module hash, the exact inventory, and
+the manifest structure. With an explicit source, it additionally proves the
+bytes match the manifest's committed blobs (even if that checkout is dirty).
+Without a source, it ignores `FIN_SRC` and verifies local consistency only:
+a hash manifest alone is not proof of upstream provenance. An optional commit
+argument to `--check` must match the manifest cite.
+
+## Local validation
+
+```sh
+python3 -I tests/test_sdk.py VendorTests
+FINC=/absolute/path/to/finc python3 -I tests/test_sdk.py
+```
+
+The vendoring tests create tiny disposable Git repositories and SDK copies;
+they never refresh this checkout or modify a real Fin source tree. They cover
+dirty sources, explicit/default commits, relative paths, missing modules,
+invalid inventory/manifests, tampering, staging failures, and rollback.
+The full suite requires a contract-3 backend-enabled compiler and its C linker.
+It builds both examples in temporary directories using **only** this SDK's
+`lib/`, with a poisoned `FIN_LIBS`, and asserts output and exit codes: starter
+0; proof findings 1, clean input 0, and missing fixture 2. No frozen/bundled
+stdlib fallback is added to these SDK smoke builds.
