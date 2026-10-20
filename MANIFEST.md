@@ -1,7 +1,7 @@
 # Manifest
 
 Vendored from [M1778/Fin](https://github.com/M1778/Fin) commit
-`cdc93317eed2d1ec9d5fce33bb1309ca7d7a47a9`, `lib/std/*.fin`, byte-exact:
+`a6b4b674d5c1a0bfda6a05d25510d46ddb760a91`, `lib/std/*.fin`, byte-exact:
 
 | module | sha256 |
 |--------|--------|
@@ -9,6 +9,7 @@ Vendored from [M1778/Fin](https://github.com/M1778/Fin) commit
 | derive | `1006021725738052435b42bd0f6b4065ad54ba5c566a84e47327176962f29df1` |
 | enums | `f1efdc91a2e2e925a2a02c61182e5b85c6a04fe154475190c115995f8a445d2c` |
 | cdk | `a90e4a5c9c35df5c5ec76194ec1adbc5ab0669927394e29217e78e793b390171` |
+| cli | `2e5284b948b2067f938835c42e6c24d4aab78365399613ccbf9841101da924e3` |
 | diag | `67b205f062dbc4856fb9f03873da95c9073a0417e074ed18fae5df28a3c3bdbb` |
 | scanner | `d44148db1a323d31bb76803f96c9e2624a3e25621f498bf60fe8bca349882444` |
 | parse | `c17a65106719decb8491ae24fd059dda3c6c7f5f1d096a8583d5b5bc0c7779a5` |

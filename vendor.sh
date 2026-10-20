@@ -5,7 +5,7 @@ set -euo pipefail
 SRC="${1:-${FIN_SRC:-$HOME/Fin}}"
 cd "$(dirname "$0")"
 
-MODULES="reflect derive enums cdk diag scanner parse ast ir emitter buffer token outcome strings fs stdio collection error operators"
+MODULES="reflect derive enums cdk cli diag scanner parse ast ir emitter buffer token outcome strings fs stdio collection error operators"
 
 for m in $MODULES; do
   cp "$SRC/lib/std/$m.fin" "lib/$m.fin"
