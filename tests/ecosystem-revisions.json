@@ -1,0 +1,14 @@
+{
+  "fin-auth": "ba05a4317b2aeaf8692ed4ceea198da6f5be2e58",
+  "fin-websocket": "8bce75c6aebd1c0d1a99284908d713aa8802db66",
+  "fin-validate": "2bb0927e1ae658bb87750d5100d78aeed606bc6c",
+  "template": "eb575d82de40c4a720d80bb15500a48a2037edb6",
+  "zhttp": "61db2fa613b37a13d5fd893fa664da8bd6612f0e",
+  "finson": "3ec90fe94643404c06349ceb6fcc004ad89ca5c3",
+  "fin-crypto": "777990f2ef19ec7be6a69a628957ffb48da11974",
+  "fin-ssg": "f35c60ede22c23d7a21b92fc98656a2ec33919ef",
+  "fin-kv": "1bce901ec644f69af9bfbeef0ea79bbf2740ae61",
+  "logg": "b1ca1e10f1a3fa004d1576c722cba64269b21a55",
+  "xtest": "3f6a22fe370658fc7d8b4261b23a6a7242d73df3",
+  "Linf": "8d3c96191fb463bbf45c49b5b79b4cccfb06a312"
+}

@@ -125,3 +125,31 @@ It builds both examples in temporary directories using **only** this SDK's
 `lib/`, with a poisoned `FIN_LIBS`, and asserts output and exit codes: starter
 0; proof findings 1, clean input 0, and missing fixture 2. No frozen/bundled
 stdlib fallback is added to these SDK smoke builds.
+
+## Native ecosystem CI
+
+`.github/workflows/ecosystem.yml` runs native x86-64 and ARM64 jobs on Linux,
+macOS, and Windows. It uses the compiler artifacts from successful Fin run
+`39486020060`, verifies their source is commit
+`1f7afd97ab5ad520b78db3140d4f930aaeb74d1b`, and checks out the exact sibling
+revisions in `tests/ecosystem-revisions.json`. Expired artifacts fail setup;
+they are never replaced silently with a moving compiler build.
+
+`tests/ecosystem.py` first builds and runs a native executable, then exercises
+the supported projects at O0/O2 and uploads per-platform JSON results. Portable
+libraries run on all six hosts. zhttp, fin-websocket, fin-kv, fin-ssg and Linf
+currently have Linux-specific implementation or test contracts and run on both
+Linux architectures; other hosts record them as **unsupported**, never passed.
+SDK smoke examples run on all hosts, while vendoring fault-injection tests run
+on Linux. This matrix does not fix or certify Fin's separate release packaging.
+
+Run against local sibling checkouts with an explicit compiler and libraries:
+
+```sh
+python3 -I tests/ecosystem.py --root /path/to/checkouts --finc /path/to/finc \
+  --fin-libs /path/to/Fin/lib/std --report /tmp/ecosystem-results.json
+```
+
+The report records tested commit IDs and distinguishes failed, passed, and
+unsupported projects. Native Windows/macOS status comes from the workflow run,
+not from Linux type checking.

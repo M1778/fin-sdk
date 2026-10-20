@@ -1,0 +1,110 @@
+name: Native ecosystem
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: native-ecosystem-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FIN_REF: 1f7afd97ab5ad520b78db3140d4f930aaeb74d1b
+  FIN_CI_RUN: '39486020060'
+  GH_TOKEN: ${{ github.token }}
+  PYTHONUTF8: '1'
+
+jobs:
+  native:
+    name: ${{ matrix.platform }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux-x86_64
+            runner: ubuntu-24.04
+          - platform: linux-arm64
+            runner: ubuntu-24.04-arm
+          - platform: macos-arm64
+            runner: macos-15
+          - platform: macos-x86_64
+            runner: macos-15-intel
+          - platform: windows-x86_64
+            runner: windows-2022
+            msvc: x64
+          - platform: windows-arm64
+            runner: windows-11-arm
+            msvc: arm64
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ecosystem/fin-sdk
+      - uses: actions/checkout@v4
+        with:
+          repository: M1778/Fin
+          ref: ${{ env.FIN_REF }}
+          path: toolchain/source
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: ilammy/msvc-dev-cmd@v1
+        if: runner.os == 'Windows'
+        with:
+          arch: ${{ matrix.msvc }}
+      - name: Install Linux compiler runtime
+        if: runner.os == 'Linux'
+        run: |
+          curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | gpg --dearmor | sudo tee /usr/share/keyrings/llvm-archive-keyring.gpg >/dev/null
+          echo 'deb [signed-by=/usr/share/keyrings/llvm-archive-keyring.gpg] https://apt.llvm.org/noble/ llvm-toolchain-noble-22 main' | sudo tee /etc/apt/sources.list.d/llvm22.list
+          sudo apt-get update -qq
+          sudo apt-get install -y llvm-22 clang-22
+      - name: Install macOS compiler runtime
+        if: runner.os == 'macOS'
+        run: brew install llvm@22
+      - name: Verify compiler provenance
+        run: |
+          gh api "repos/M1778/Fin/actions/runs/$FIN_CI_RUN" --jq '{head_sha, conclusion, event}' > compiler-run.json
+          python -c 'import json,os; r=json.load(open("compiler-run.json")); assert r["head_sha"] == os.environ["FIN_REF"] and r["conclusion"] == "success" and r["event"] == "push", r'
+      - name: Cache native compiler artifact
+        id: compiler
+        uses: actions/cache@v4
+        with:
+          path: toolchain/bin
+          key: fin-native-${{ matrix.platform }}-${{ env.FIN_CI_RUN }}
+      - name: Download verified native compiler
+        if: steps.compiler.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p toolchain/bin
+          gh run download "$FIN_CI_RUN" --repo M1778/Fin --name 'ci-${{ matrix.platform }}' --dir toolchain/bin
+      - name: Checkout exact ecosystem revisions
+        run: python ecosystem/fin-sdk/tests/checkout_ecosystem.py --root ecosystem --revisions ecosystem/fin-sdk/tests/ecosystem-revisions.json
+      - name: Compile and run native ecosystem
+        run: |
+          if [ "$RUNNER_OS" = Windows ]; then
+            export FIN_CC=clang
+            compiler="$GITHUB_WORKSPACE/toolchain/bin/finc.exe"
+          else
+            chmod +x toolchain/bin/finc
+            compiler="$GITHUB_WORKSPACE/toolchain/bin/finc"
+          fi
+          python ecosystem/fin-sdk/tests/ecosystem.py --root ecosystem --finc "$compiler" \
+            --fin-libs toolchain/source/lib/std --report 'reports/${{ matrix.platform }}.json'
+      - name: Upload platform results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ecosystem-${{ matrix.platform }}
+          path: |
+            reports/*.json
+            compiler-run.json
+          if-no-files-found: warn

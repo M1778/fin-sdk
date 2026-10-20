@@ -48,8 +48,11 @@ jobs:
           echo "Fin checkout is at $got"
           [ "$got" = "$FIN_CITE" ] || { echo "::error::requested $FIN_CITE, got $got"; exit 1; }
 
-      - name: Re-vendor
-        run: bash vendor.sh "$GITHUB_WORKSPACE/fin"
+      - name: Verify bundle without rewriting it
+        run: bash vendor.sh --check "$GITHUB_WORKSPACE/fin"
+
+      - name: Exercise vendoring failures in temporary repositories
+        run: python3 -I tests/test_sdk.py VendorTests
 
       - name: Bundle still matches its source
         run: git diff --exit-code lib MANIFEST.md
