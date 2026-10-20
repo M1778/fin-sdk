@@ -52,6 +52,14 @@ def main():
         executable = work / f"smoke{suffix}"
         run([compiler, smoke, "--fin-libs", stdlib, "-O2", "-o", executable], work)
         run([executable], work)
+        host_macro = {"Linux": "FIN_TARGET_LINUX", "Darwin": "FIN_TARGET_DARWIN", "Windows": "FIN_TARGET_WINDOWS"}[platform.system()]
+        probe = work / "target-macro.fin"
+        probe.write_text(f'#c_ifdef {host_macro}\nfun main() <noret> {{ printf("available\\n"); }}\n#c_else\nfun main() <noret> {{ printf("missing\\n"); }}\n#c_endif\n', encoding="utf-8")
+        probe_binary = work / f"target-macro{suffix}"
+        run([compiler, probe, "--fin-libs", stdlib, "-o", probe_binary], work)
+        has_target_macro = run([probe_binary], work).strip() == "available"
+        report["compiler_capabilities"] = {host_macro: has_target_macro}
+        requires_macro = {"Windows": {"fin-crypto", "fin-auth", "logg"}, "Darwin": {"fin-auth", "logg"}}.get(platform.system(), set())
         for name in args.project or PROJECTS:
             repo = root / name
             entry = {"project": name}
@@ -111,8 +119,11 @@ def main():
                 entry["status"] = "passed"
             except (OSError, subprocess.SubprocessError, RuntimeError) as error:
                 failed = True
-                entry.update(status="failed", error=str(error))
-                print(f"FAILED {name}: {error}", flush=True)
+                state = "blocked" if name in requires_macro and not has_target_macro else "failed"
+                entry.update(status=state, error=str(error))
+                if state == "blocked":
+                    entry["blocker"] = f"Published Fin compiler does not define {host_macro}; native platform branches cannot be selected. Compiler update required."
+                print(f"{state.upper()} {name}: {error}", flush=True)
             entry["seconds"] = round(time.monotonic() - started, 3)
             args.report.parent.mkdir(parents=True, exist_ok=True)
             args.report.write_text(json.dumps(report, indent=2), encoding="utf-8")
@@ -120,6 +131,13 @@ def main():
     args.report.write_text(json.dumps(report, indent=2), encoding="utf-8")
     for entry in report["projects"]:
         print(f"{entry['project']}: {entry['status']}")
+    summary = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary:
+        with open(summary, "a", encoding="utf-8") as stream:
+            stream.write("## Native compilation results\n\n| Project | Result |\n|---|---|\n")
+            for entry in report["projects"]:
+                stream.write(f"| {entry['project']} | {entry['status']} |\n")
+            stream.write("\nBlocked compiler capabilities still fail this job; unsupported projects are never reported as passes.\n")
     return int(failed)
 
 

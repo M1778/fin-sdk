@@ -150,6 +150,11 @@ python3 -I tests/ecosystem.py --root /path/to/checkouts --finc /path/to/finc \
   --fin-libs /path/to/Fin/lib/std --report /tmp/ecosystem-results.json
 ```
 
-The report records tested commit IDs and distinguishes failed, passed, and
-unsupported projects. Native Windows/macOS status comes from the workflow run,
-not from Linux type checking.
+The report records tested commit IDs and distinguishes failed, passed, blocked,
+and unsupported projects. A compiled runtime probe checks the host's
+`FIN_TARGET_*` macro. The pinned published compiler currently lacks these
+macros: Windows crypto/auth/logging and macOS auth/logging are compiler-blocked.
+They are still attempted, their errors are recorded, and blocked results fail
+the job rather than appearing green. The macro constructor exists only in the
+unpublished Fin working tree; this repository does not patch that compiler.
+Native Windows/macOS status comes from the workflow run, not Linux type checking.
