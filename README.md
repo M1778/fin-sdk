@@ -28,7 +28,7 @@ accident — same pin rule `finn` builds use.
 
 | path | what |
 |------|------|
-| `lib/*.fin` | 20 `lib/std` modules, vendored byte-exact: reflect, derive, enums (measurement facts + derives + member names), cdk + its full dependency closure (scanner, parse, token, ast, ir, emitter, buffer, outcome, strings, collection, error, operators), cli (the finc-shaped CLI grammar), diag, fs, stdio |
+| `lib/*.fin` | 23 `lib/std` modules, vendored byte-exact: reflect, derive, enums (measurement facts + derives + member names), cdk + its full dependency closure (scanner, parse, token, ast, ir, emitter, buffer, outcome, strings, collection, error, operators), cli (the finc-shaped CLI grammar), process, json, hashmap, diag, fs, stdio |
 | `templates/cdk-tool/` | starter program for a tool whose core is the SDK's parser/IR stack (`calc_eval` demo) |
 | `proof/linf_first_rules.fin` | the Linf-shaped proof: token rules written in Fin against this bundle |
 | `vendor.sh` | regenerate `lib/` from a Fin checkout and restamp `MANIFEST.md` |
