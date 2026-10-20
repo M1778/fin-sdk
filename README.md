@@ -28,7 +28,7 @@ accident — same pin rule `finn` builds use.
 
 | path | what |
 |------|------|
-| `lib/*.fin` | 19 `lib/std` modules, vendored byte-exact: reflect, derive, enums (measurement facts + derives + member names), cdk + its full dependency closure (scanner, parse, token, ast, ir, emitter, buffer, outcome, strings, string, collection, error, operators), diag, fs, stdio |
+| `lib/*.fin` | 20 `lib/std` modules, vendored byte-exact: reflect, derive, enums (measurement facts + derives + member names), cdk + its full dependency closure (scanner, parse, token, ast, ir, emitter, buffer, outcome, strings, collection, error, operators), cli (the finc-shaped CLI grammar), diag, fs, stdio |
 | `templates/cdk-tool/` | starter program for a tool whose core is the SDK's parser/IR stack (`calc_eval` demo) |
 | `proof/linf_first_rules.fin` | the Linf-shaped proof: token rules written in Fin against this bundle |
 | `vendor.sh` | regenerate `lib/` from a Fin checkout and restamp `MANIFEST.md` |
@@ -44,7 +44,7 @@ exactly as they do in a Fin tree — `lib/std/reflect.fin`, `derive.fin`, and
 (`src/driver/Version.hpp` in the Fin repo, documented in
 `docs/finc-interface-contract.md`). When the contract bumps, this SDK's
 major bumps and `MINOR` resets to 0; module additions bump MINOR, fixes bump
-PATCH. Current: contract **3** → SDK `3.0.0`.
+PATCH. Current: contract **3** → SDK `3.1.0`.
 
 A tool built against a contract-N SDK is not promised to link against
 contract N+1; vendored module output text (refusals, diagnostics) follows the
