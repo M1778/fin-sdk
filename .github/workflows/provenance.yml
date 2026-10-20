@@ -1,0 +1,55 @@
+name: provenance
+
+# lib/ has one source of truth: M1778/Fin@<cite>. The cite lives in MANIFEST.md
+# and is what this workflow checks out, so the manifest pins the ref it proves.
+# vendor.sh re-copies byte-exact and restamps; one changed byte fails the job.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: provenance-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  vendor-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read the manifest cite
+        run: |
+          cite="$(sed -n 's/.*`\([0-9a-f]\{40\}\)`.*/\1/p' MANIFEST.md)"
+          echo "cite: $cite"
+          case "$cite" in
+            [0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]*) : ;;
+            *) echo "::error::MANIFEST.md names no 40-hex Fin commit"; exit 1 ;;
+          esac
+          echo "FIN_CITE=$cite" >> "$GITHUB_ENV"
+
+      - name: Checkout Fin at the manifest cite
+        uses: actions/checkout@v4
+        with:
+          repository: M1778/Fin
+          ref: ${{ env.FIN_CITE }}
+          path: fin
+
+      # actions/checkout ref vs. resolved tree: a short name could move, so
+      # assert the bytes the cite names are the bytes that arrived.
+      - name: The cite landed
+        run: |
+          got="$(git -C fin rev-parse HEAD)"
+          echo "Fin checkout is at $got"
+          [ "$got" = "$FIN_CITE" ] || { echo "::error::requested $FIN_CITE, got $got"; exit 1; }
+
+      - name: Re-vendor
+        run: bash vendor.sh "$GITHUB_WORKSPACE/fin"
+
+      - name: Bundle still matches its source
+        run: git diff --exit-code lib MANIFEST.md
