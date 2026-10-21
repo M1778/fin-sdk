@@ -4,6 +4,15 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      fin_ref:
+        description: "Fin compiler revision to build the ecosystem against"
+        type: string
+        default: '1f7afd97ab5ad520b78db3140d4f930aaeb74d1b'
+      fin_ci_run:
+        description: "Fin CI run whose compiler artifacts are downloaded"
+        type: string
+        default: '39486020060'
 
 permissions:
   contents: read
@@ -14,8 +23,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FIN_REF: 1f7afd97ab5ad520b78db3140d4f930aaeb74d1b
-  FIN_CI_RUN: '39486020060'
+  # The compiler revision and the CI run whose artifacts the matrix downloads.
+  # Both default to the published revision; a dispatch can point them at a
+  # branch that publishes the native target selectors, which is what lets a
+  # library's platform branches be selected at all.
+  FIN_REF: ${{ inputs.fin_ref || '1f7afd97ab5ad520b78db3140d4f930aaeb74d1b' }}
+  FIN_CI_RUN: ${{ inputs.fin_ci_run || '39486020060' }}
   GH_TOKEN: ${{ github.token }}
   PYTHONUTF8: '1'
 
