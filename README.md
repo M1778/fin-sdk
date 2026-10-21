@@ -137,9 +137,13 @@ they are never replaced silently with a moving compiler build.
 
 `tests/ecosystem.py` first builds and runs a native executable, then exercises
 the supported projects at O0/O2 and uploads per-platform JSON results. Portable
-libraries run on all six hosts. zhttp, fin-websocket, fin-kv, fin-ssg and Linf
-currently have Linux-specific implementation or test contracts and run on both
-Linux architectures; other hosts record them as **unsupported**, never passed.
+libraries run on all six hosts. zhttp and fin-websocket select their socket ABI
+for the native target and run on all six hosts too; fin-websocket's socket
+suite uses POSIX mechanisms (socketpair, fork, alarm) and therefore runs on
+Linux only, where the portable suite is what proves the module elsewhere.
+fin-kv, fin-ssg and Linf still have Linux-specific implementation or test
+contracts and run on both Linux architectures; other hosts record them as
+**unsupported**, never passed.
 SDK smoke examples run on all hosts, while vendoring fault-injection tests run
 on Linux. This matrix does not fix or certify Fin's separate release packaging.
 
@@ -155,6 +159,8 @@ and unsupported projects. A compiled runtime probe checks the host's
 `FIN_TARGET_*` macro. The pinned published compiler currently lacks these
 macros: Windows crypto/auth/logging and macOS auth/logging are compiler-blocked.
 They are still attempted, their errors are recorded, and blocked results fail
-the job rather than appearing green. The macro constructor exists only in the
-unpublished Fin working tree; this repository does not patch that compiler.
-Native Windows/macOS status comes from the workflow run, not Linux type checking.
+the job rather than appearing green. A compiler that publishes the selectors
+removes that block -- the branch is `M1778/Fin@feature/target-selectors`, and
+the workflow's `FIN_REF`/`FIN_CI_RUN` point at the compiler revision whose
+artifacts the matrix downloads. Native Windows/macOS status comes from the
+workflow run, not Linux type checking.
