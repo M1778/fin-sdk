@@ -1,9 +1,9 @@
 {
-  "fin-auth": "ba05a4317b2aeaf8692ed4ceea198da6f5be2e58",
-  "fin-websocket": "8bce75c6aebd1c0d1a99284908d713aa8802db66",
+  "fin-auth": "7b997f79b8fae031cbddfe54cce8ca59476a01af",
+  "fin-websocket": "cb77220ba891d43bd8c1e1eed3765ccbbdafe5fd",
   "fin-validate": "2bb0927e1ae658bb87750d5100d78aeed606bc6c",
   "template": "eb575d82de40c4a720d80bb15500a48a2037edb6",
-  "zhttp": "61db2fa613b37a13d5fd893fa664da8bd6612f0e",
+  "zhttp": "4cd38b403a468b11a8276fc6086a1cf3580567ef",
   "finson": "3ec90fe94643404c06349ceb6fcc004ad89ca5c3",
   "fin-crypto": "777990f2ef19ec7be6a69a628957ffb48da11974",
   "fin-ssg": "03483274eafd508c07adb562443da8b03feb7658",

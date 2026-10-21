@@ -10,7 +10,10 @@ import time
 
 PROJECTS = ["fin-crypto", "finson", "fin-validate", "template", "logg", "xtest",
             "fin-auth", "zhttp", "fin-websocket", "fin-kv", "fin-ssg", "Linf", "fin-sdk"]
-LINUX_ONLY = {"zhttp", "fin-websocket", "fin-kv", "fin-ssg", "Linf"}
+# Projects with no native transport or filesystem implementation for this
+# platform yet. A project here is reported "unsupported", never "passed" --
+# an unsupported project is not a portability result.
+LINUX_ONLY = {"fin-kv", "fin-ssg", "Linf"}
 
 
 def main():
@@ -96,7 +99,7 @@ def main():
                         "finson": ["tests/test_lib.fin", "examples/basic.fin"],
                         "fin-auth": ["tests/test_auth.fin", "examples/basic.fin"],
                         "zhttp": ["tests/test_lib.fin"],
-                        "fin-websocket": ["tests/test_websocket.fin", "tests/test_socket.fin"],
+                        "fin-websocket": ["tests/test_websocket.fin"],
                     }[name]
                     includes = []
                     if name == "fin-auth":
@@ -112,6 +115,15 @@ def main():
                                 run([python, "-I", repo / "tests/differential.py", binary], work)
                             if name == "zhttp":
                                 run([python, "-I", repo / "tests/test_protocol.py", binary], work)
+                    if name == "fin-websocket" and platform.system() == "Linux":
+                        # The socket suite uses socketpair, fork and alarm:
+                        # POSIX mechanisms with no Windows equivalent, so it
+                        # runs only where they exist. The portable suite above
+                        # is what proves the module itself on every platform.
+                        for opt in ("-O0", "-O2"):
+                            binary = work / f"fin-websocket-sockets-{opt}{suffix}"
+                            build(repo, "tests/test_socket.fin", binary, opt, includes)
+                            run([binary], work, timeout=300)
                     if name in {"zhttp", "fin-websocket"}:
                         examples = ["examples/server.fin", "examples/client.fin"] if name == "zhttp" else ["examples/echo_server.fin", "examples/echo_client.fin"]
                         for index, source in enumerate(examples):
