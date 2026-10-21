@@ -86,8 +86,13 @@ jobs:
         run: brew install llvm@22
       - name: Verify compiler provenance
         run: |
+          # The artifacts come from exactly the named revision, and that
+          # revision's CI run must have succeeded. The run's own event is a
+          # push or a workflow_dispatch: a published compiler is built by a
+          # push, and a branch compiler is built by a dispatch, and both are
+          # legitimate sources for artifacts that are pinned to a commit.
           gh api "repos/M1778/Fin/actions/runs/$FIN_CI_RUN" --jq '{head_sha, conclusion, event}' > compiler-run.json
-          python -c 'import json,os; r=json.load(open("compiler-run.json")); assert r["head_sha"] == os.environ["FIN_REF"] and r["conclusion"] == "success" and r["event"] == "push", r'
+          python -c 'import json,os; r=json.load(open("compiler-run.json")); assert r["head_sha"] == os.environ["FIN_REF"] and r["conclusion"] == "success" and r["event"] in ("push", "workflow_dispatch"), r'
       - name: Cache native compiler artifact
         id: compiler
         uses: actions/cache@v4
