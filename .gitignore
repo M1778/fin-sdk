@@ -2,3 +2,6 @@
 starter
 linf_first_rules
 main
+
+# Agent worktrees created by the harness.
+.claude/worktrees/
