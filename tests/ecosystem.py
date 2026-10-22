@@ -92,7 +92,7 @@ def main():
                 elif name == "fin-ssg":
                     for opt in ("-O0", "-O2"):
                         run([python, "-I", repo / "tests/smoke.py",
-                             "--finc", compiler, "--fin-libs", stdlib, "--opt", opt],
+                             "--finc", compiler, "--fin-libs", stdlib, f"--opt={opt}"],
                             repo, timeout=600)
                 else:
                     sources = {
