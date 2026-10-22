@@ -99,7 +99,7 @@ def main():
                         "finson": ["tests/test_lib.fin", "examples/basic.fin"],
                         "fin-auth": ["tests/test_auth.fin", "examples/basic.fin"],
                         "zhttp": ["tests/test_lib.fin"],
-                        "fin-websocket": ["tests/test_websocket.fin"],
+                        "fin-websocket": ["tests/test_websocket.fin", "tests/test_socket.fin"],
                     }[name]
                     includes = []
                     if name == "fin-auth":
@@ -115,11 +115,7 @@ def main():
                                 run([python, "-I", repo / "tests/differential.py", binary], work)
                             if name == "zhttp":
                                 run([python, "-I", repo / "tests/test_protocol.py", binary], work)
-                    if name == "fin-websocket" and platform.system() == "Linux":
-                        # The socket suite uses socketpair, fork and alarm:
-                        # POSIX mechanisms with no Windows equivalent, so it
-                        # runs only where they exist. The portable suite above
-                        # is what proves the module itself on every platform.
+                    if name == "fin-websocket":
                         for opt in ("-O0", "-O2"):
                             binary = work / f"fin-websocket-sockets-{opt}{suffix}"
                             build(repo, "tests/test_socket.fin", binary, opt, includes)
