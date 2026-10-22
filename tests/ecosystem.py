@@ -13,7 +13,7 @@ PROJECTS = ["fin-crypto", "finson", "fin-validate", "template", "logg", "xtest",
 # Projects with no native transport or filesystem implementation for this
 # platform yet. A project here is reported "unsupported", never "passed" --
 # an unsupported project is not a portability result.
-LINUX_ONLY = {"fin-kv", "fin-ssg", "Linf"}
+LINUX_ONLY = {"fin-kv", "Linf"}
 
 
 def main():
@@ -91,7 +91,9 @@ def main():
                              "--fin-libs", stdlib, "--opt", opt], repo, timeout=600)
                 elif name == "fin-ssg":
                     for opt in ("-O0", "-O2"):
-                        run(["sh", repo / "tests/smoke.sh"], repo, {"OPT": opt}, timeout=300)
+                        run([python, "-I", repo / "tests/smoke.py",
+                             "--finc", compiler, "--fin-libs", stdlib, "--opt", opt],
+                            repo, timeout=600)
                 else:
                     sources = {
                         "fin-validate": ["tests/test_validate.fin", "examples/basic.fin"],
