@@ -8,11 +8,11 @@ on:
       fin_ref:
         description: "Fin compiler revision to build the ecosystem against"
         type: string
-        default: '1f7afd97ab5ad520b78db3140d4f930aaeb74d1b'
+        default: '5360b051b8e82a4f10052c3dbb77bc66cc727cd7'
       fin_ci_run:
         description: "Fin CI run whose compiler artifacts are downloaded"
         type: string
-        default: '39486020060'
+        default: '40028977601'
 
 permissions:
   contents: read
@@ -23,12 +23,10 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # The compiler revision and the CI run whose artifacts the matrix downloads.
-  # Both default to the published revision; a dispatch can point them at a
-  # branch that publishes the native target selectors, which is what lets a
-  # library's platform branches be selected at all.
-  FIN_REF: ${{ inputs.fin_ref || '1f7afd97ab5ad520b78db3140d4f930aaeb74d1b' }}
-  FIN_CI_RUN: ${{ inputs.fin_ci_run || '39486020060' }}
+  # Exact successful compiler candidate supplied by the compiler agent.
+  # This pins validation artifacts, not a released compiler version.
+  FIN_REF: ${{ inputs.fin_ref || '5360b051b8e82a4f10052c3dbb77bc66cc727cd7' }}
+  FIN_CI_RUN: ${{ inputs.fin_ci_run || '40028977601' }}
   GH_TOKEN: ${{ github.token }}
   PYTHONUTF8: '1'
 
