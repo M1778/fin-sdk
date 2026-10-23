@@ -10,10 +10,6 @@ import time
 
 PROJECTS = ["fin-crypto", "finson", "fin-validate", "template", "logg", "xtest",
             "fin-auth", "zhttp", "fin-websocket", "fin-kv", "fin-ssg", "Linf", "fin-sdk"]
-# Projects with no native transport or filesystem implementation for this
-# platform yet. A project here is reported "unsupported", never "passed" --
-# an unsupported project is not a portability result.
-LINUX_ONLY = {"fin-kv", "Linf"}
 
 
 def main():
@@ -62,29 +58,33 @@ def main():
         run([compiler, probe, "--fin-libs", stdlib, "-o", probe_binary], work)
         has_target_macro = run([probe_binary], work).strip() == "available"
         report["compiler_capabilities"] = {host_macro: has_target_macro}
-        requires_macro = {"Windows": {"fin-crypto", "fin-auth", "logg"}, "Darwin": {"fin-auth", "logg"}}.get(platform.system(), set())
+        requires_macro = {"Windows": {"fin-crypto", "fin-auth", "logg", "zhttp", "fin-websocket", "fin-kv", "fin-ssg", "Linf"},
+                          "Darwin": {"fin-auth", "logg", "zhttp", "fin-websocket", "fin-kv", "fin-ssg", "Linf"}}.get(platform.system(), set())
         for name in args.project or PROJECTS:
             repo = root / name
             entry = {"project": name}
             report["projects"].append(entry)
-            if name in LINUX_ONLY and platform.system() != "Linux":
-                entry.update(status="unsupported", reason="Linux-specific transport/filesystem or POSIX linter contract; not a portability pass")
-                print(f"UNSUPPORTED {name}: {entry['reason']}", flush=True)
-                continue
             started = time.monotonic()
             try:
                 entry["revision"] = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+                changes = subprocess.check_output(["git", "-C", str(repo), "status", "--porcelain", "--untracked-files=normal"], text=True)
+                entry["dirty"] = bool(changes.strip())
+                if name in requires_macro and not has_target_macro:
+                    raise RuntimeError(f"Native platform branches require {host_macro}; refusing the fallback ABI")
                 if name in {"fin-crypto", "logg", "xtest"}:
                     run([python, "-I", repo / "tests/run_tests.py", "--finc", compiler, "--fin-libs", stdlib], repo, timeout=600)
                 elif name == "fin-sdk":
                     if platform.system() == "Linux":
-                        run([python, "-I", repo / "tests/test_sdk.py"], repo)
-                    else:
-                        run([python, "-I", repo / "tests/test_sdk.py", "SmokeTests"], repo)
+                        run([python, "-I", repo / "tests/test_sdk.py", "VendorTests"], repo)
+                    for opt in ("-O0", "-O2"):
+                        run([python, "-I", repo / "tests/test_sdk.py", "SmokeTests"], repo,
+                            {"FIN_SDK_OPT": opt})
+                    entry["optimization_levels"] = ["-O0", "-O2"]
                 elif name == "Linf":
                     for opt in ("-O0", "-O2"):
-                        run(["bash", repo / "tests/run.sh"], repo,
-                            {"OPT": opt, "SDK_LIB": str(root / "fin-sdk/lib")}, timeout=600)
+                        run([python, "-I", repo / "tests/run.py", "--finc", compiler,
+                             "--fin-libs", root / "fin-sdk/lib", f"--opt={opt}"],
+                            repo, timeout=600)
                 elif name == "fin-kv":
                     for opt in ("O0", "O2"):
                         run([python, "-I", repo / "tests/smoke.py", "--compiler", compiler,
@@ -101,7 +101,7 @@ def main():
                         "finson": ["tests/test_lib.fin", "examples/basic.fin"],
                         "fin-auth": ["tests/test_auth.fin", "examples/basic.fin"],
                         "zhttp": ["tests/test_lib.fin"],
-                        "fin-websocket": ["tests/test_websocket.fin", "tests/test_socket.fin"],
+                        "fin-websocket": ["tests/test_websocket.fin"],
                     }[name]
                     includes = []
                     if name == "fin-auth":

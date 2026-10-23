@@ -8,29 +8,35 @@ on:
       fin_ref:
         description: "Fin compiler revision to build the ecosystem against"
         type: string
-        default: '1f7afd97ab5ad520b78db3140d4f930aaeb74d1b'
+        default: '5360b051b8e82a4f10052c3dbb77bc66cc727cd7'
       fin_ci_run:
         description: "Fin CI run whose compiler artifacts are downloaded"
         type: string
-        default: '39486020060'
+        default: '40028977601'
+      project:
+        description: "Project to test, or all for the full ecosystem"
+        type: choice
+        default: all
+        options:
+          - all
+          - fin-sdk
 
 permissions:
   contents: read
   actions: read
 
 concurrency:
-  group: native-ecosystem-${{ github.ref }}
+  group: native-ecosystem-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 
 env:
-  # The compiler revision and the CI run whose artifacts the matrix downloads.
-  # Both default to the published revision; a dispatch can point them at a
-  # branch that publishes the native target selectors, which is what lets a
-  # library's platform branches be selected at all.
-  FIN_REF: ${{ inputs.fin_ref || '1f7afd97ab5ad520b78db3140d4f930aaeb74d1b' }}
-  FIN_CI_RUN: ${{ inputs.fin_ci_run || '39486020060' }}
+  # Exact successful compiler candidate supplied by the compiler agent.
+  # This pins validation artifacts, not a released compiler version.
+  FIN_REF: ${{ inputs.fin_ref || '5360b051b8e82a4f10052c3dbb77bc66cc727cd7' }}
+  FIN_CI_RUN: ${{ inputs.fin_ci_run || '40028977601' }}
   GH_TOKEN: ${{ github.token }}
   PYTHONUTF8: '1'
+  PROJECT: ${{ inputs.project || 'all' }}
 
 jobs:
   native:
@@ -67,6 +73,8 @@ jobs:
           repository: M1778/Fin
           ref: ${{ env.FIN_REF }}
           path: toolchain/source
+          sparse-checkout: lib/std
+          sparse-checkout-cone-mode: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -86,13 +94,10 @@ jobs:
         run: brew install llvm@22
       - name: Verify compiler provenance
         run: |
-          # The artifacts come from exactly the named revision, and that
-          # revision's CI run must have succeeded. The run's own event is a
-          # push or a workflow_dispatch: a published compiler is built by a
-          # push, and a branch compiler is built by a dispatch, and both are
-          # legitimate sources for artifacts that are pinned to a commit.
-          gh api "repos/M1778/Fin/actions/runs/$FIN_CI_RUN" --jq '{head_sha, conclusion, event}' > compiler-run.json
-          python -c 'import json,os; r=json.load(open("compiler-run.json")); assert r["head_sha"] == os.environ["FIN_REF"] and r["conclusion"] == "success" and r["event"] in ("push", "workflow_dispatch"), r'
+          gh api "repos/M1778/Fin/actions/runs/$FIN_CI_RUN" > compiler-run.json
+          gh api --paginate "repos/M1778/Fin/actions/runs/$FIN_CI_RUN/jobs?per_page=100" --jq '.jobs[]' | jq -s . > compiler-jobs.json
+          python -I -c 'import json; p="compiler-run.json"; r=json.load(open(p,encoding="utf-8")); r["jobs"]=json.load(open("compiler-jobs.json",encoding="utf-8")); json.dump(r,open(p,"w",encoding="utf-8"))'
+          python -I ecosystem/fin-sdk/tests/compiler_provenance.py compiler-run.json "$FIN_REF" '${{ matrix.platform }}'
       - name: Cache native compiler artifact
         id: compiler
         uses: actions/cache@v4
@@ -104,8 +109,12 @@ jobs:
         run: |
           mkdir -p toolchain/bin
           gh run download "$FIN_CI_RUN" --repo M1778/Fin --name 'ci-${{ matrix.platform }}' --dir toolchain/bin
+      - name: Check compiler provenance guard
+        run: python -I ecosystem/fin-sdk/tests/test_compiler_provenance.py
+      - name: Check immutable ecosystem revision inventory
+        run: python -I ecosystem/fin-sdk/tests/test_ecosystem_revisions.py
       - name: Checkout exact ecosystem revisions
-        run: python ecosystem/fin-sdk/tests/checkout_ecosystem.py --root ecosystem --revisions ecosystem/fin-sdk/tests/ecosystem-revisions.json
+        run: python -I ecosystem/fin-sdk/tests/checkout_ecosystem.py --root ecosystem --revisions ecosystem/fin-sdk/tests/ecosystem-revisions.json
       - name: Compile and run native ecosystem
         run: |
           if [ "$RUNNER_OS" = Windows ]; then
@@ -115,8 +124,12 @@ jobs:
             chmod +x toolchain/bin/finc
             compiler="$GITHUB_WORKSPACE/toolchain/bin/finc"
           fi
-          python ecosystem/fin-sdk/tests/ecosystem.py --root ecosystem --finc "$compiler" \
-            --fin-libs toolchain/source/lib/std --report 'reports/${{ matrix.platform }}.json'
+          project_args=()
+          if [ "$PROJECT" != all ]; then
+            project_args=(--project "$PROJECT")
+          fi
+          python -I ecosystem/fin-sdk/tests/ecosystem.py --root ecosystem --finc "$compiler" \
+            --fin-libs toolchain/source/lib/std --report 'reports/${{ matrix.platform }}.json' "${project_args[@]}"
       - name: Upload platform results
         if: always()
         uses: actions/upload-artifact@v4

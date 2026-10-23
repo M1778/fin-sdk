@@ -7,6 +7,7 @@ name: provenance
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -39,6 +40,8 @@ jobs:
           repository: M1778/Fin
           ref: ${{ env.FIN_CITE }}
           path: fin
+          sparse-checkout: lib/std
+          sparse-checkout-cone-mode: true
 
       # actions/checkout ref vs. resolved tree: a short name could move, so
       # assert the bytes the cite names are the bytes that arrived.
@@ -53,6 +56,12 @@ jobs:
 
       - name: Exercise vendoring failures in temporary repositories
         run: python3 -I tests/test_sdk.py VendorTests
+
+      - name: Exercise compiler artifact provenance rejection
+        run: python3 -I tests/test_compiler_provenance.py
+
+      - name: Verify immutable ecosystem revision inventory
+        run: python3 -I tests/test_ecosystem_revisions.py
 
       - name: Bundle still matches its source
         run: git diff --exit-code lib MANIFEST.md

@@ -1,14 +1,14 @@
 {
   "fin-auth": "7b997f79b8fae031cbddfe54cce8ca59476a01af",
-  "fin-websocket": "11c88d0080093c2b56af48e3a3701c01a9b959a1",
+  "fin-websocket": "b3648bb633f04c48de98c06a19143d2169276be6",
   "fin-validate": "2bb0927e1ae658bb87750d5100d78aeed606bc6c",
   "template": "eb575d82de40c4a720d80bb15500a48a2037edb6",
-  "zhttp": "1aaf3f79e1b016e3c3cc3bd91659c46a604a71bd",
+  "zhttp": "5f6746da3a2294804c42534ba44a066c6b6705c8",
   "finson": "3ec90fe94643404c06349ceb6fcc004ad89ca5c3",
-  "fin-crypto": "777990f2ef19ec7be6a69a628957ffb48da11974",
-  "fin-ssg": "6422c23ffd004dd3b79af28c395f6565250f22eb",
-  "fin-kv": "93a8df330fd832b662107f7bca7d53aaf8ac4381",
+  "fin-crypto": "b79d5ed5a408f2b306ec06c8b6f85231bcee1c54",
+  "fin-ssg": "0be0662358935ff26e28f40948b297e4e43e94cd",
+  "fin-kv": "121e5ac766045a005e04bc12ff2a7245180d5359",
   "logg": "12b5550c2173bbe948e6385a8b49c8db4129112e",
-  "xtest": "3f6a22fe370658fc7d8b4261b23a6a7242d73df3",
-  "Linf": "501e50b42e85d81be89cf59571503bd985571f63"
+  "xtest": "ef155850d8d79a0822427ffff488698910f18ccf",
+  "Linf": "e99effd64bc6eafd9c881dccfe5b2cd82156e8c3"
 }

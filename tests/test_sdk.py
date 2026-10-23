@@ -309,20 +309,23 @@ class SmokeTests(unittest.TestCase):
             raise RuntimeError("Set FINC to the compiler executable to run SDK smoke tests")
         cls.compiler = str(Path(selected).resolve())
         cls.env = dict(os.environ, FIN_LIBS="/nonexistent-fin-sdk-poison")
+        cls.opt = os.environ.get("FIN_SDK_OPT", "-O0")
+        if cls.opt not in ("-O0", "-O2"):
+            raise RuntimeError("FIN_SDK_OPT must be -O0 or -O2")
         version = run([cls.compiler, "--version"], cwd=ROOT, env=cls.env)
         if version.returncode or not re.search(r"\(contract 3\)", version.stdout):
             raise RuntimeError(f"Expected contract-3 compiler: {version.stdout}{version.stderr}")
 
     def build(self, source, output):
         result = subprocess.run(
-            [self.compiler, str(ROOT / source), "-o", str(output), "--fin-libs", str(ROOT / "lib")],
+            [self.compiler, str(ROOT / source), self.opt, "-o", str(output), "--fin-libs", str(ROOT / "lib")],
             cwd=ROOT, env=self.env, text=True, capture_output=True, timeout=120,
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_starter_sdk_only(self):
         with tempfile.TemporaryDirectory(prefix="fin-sdk-starter-test-") as directory:
-            output = Path(directory) / "starter"
+            output = Path(directory) / ("starter.exe" if os.name == "nt" else "starter")
             self.build("templates/cdk-tool/main.fin", output)
             result = run([str(output)], cwd=directory, env=self.env)
             self.assertEqual(result.returncode, 0, result.stderr)
@@ -331,7 +334,7 @@ class SmokeTests(unittest.TestCase):
 
     def test_proof_sdk_only_findings_clean_and_missing_fixture(self):
         with tempfile.TemporaryDirectory(prefix="fin-sdk-proof-test-") as directory:
-            output = Path(directory) / "proof"
+            output = Path(directory) / ("proof.exe" if os.name == "nt" else "proof")
             self.build("proof/linf_first_rules.fin", output)
             sample = Path(directory) / "sample_input.fin"
             shutil.copyfile(ROOT / "proof/sample_input.fin", sample)
