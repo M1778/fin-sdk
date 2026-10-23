@@ -13,6 +13,13 @@ on:
         description: "Fin CI run whose compiler artifacts are downloaded"
         type: string
         default: '40028977601'
+      project:
+        description: "Project to test, or all for the full ecosystem"
+        type: choice
+        default: all
+        options:
+          - all
+          - fin-sdk
 
 permissions:
   contents: read
@@ -29,6 +36,7 @@ env:
   FIN_CI_RUN: ${{ inputs.fin_ci_run || '40028977601' }}
   GH_TOKEN: ${{ github.token }}
   PYTHONUTF8: '1'
+  PROJECT: ${{ inputs.project || 'all' }}
 
 jobs:
   native:
@@ -116,8 +124,12 @@ jobs:
             chmod +x toolchain/bin/finc
             compiler="$GITHUB_WORKSPACE/toolchain/bin/finc"
           fi
+          project_args=()
+          if [ "$PROJECT" != all ]; then
+            project_args=(--project "$PROJECT")
+          fi
           python -I ecosystem/fin-sdk/tests/ecosystem.py --root ecosystem --finc "$compiler" \
-            --fin-libs toolchain/source/lib/std --report 'reports/${{ matrix.platform }}.json'
+            --fin-libs toolchain/source/lib/std --report 'reports/${{ matrix.platform }}.json' "${project_args[@]}"
       - name: Upload platform results
         if: always()
         uses: actions/upload-artifact@v4

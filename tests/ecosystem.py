@@ -75,9 +75,11 @@ def main():
                     run([python, "-I", repo / "tests/run_tests.py", "--finc", compiler, "--fin-libs", stdlib], repo, timeout=600)
                 elif name == "fin-sdk":
                     if platform.system() == "Linux":
-                        run([python, "-I", repo / "tests/test_sdk.py"], repo)
-                    else:
-                        run([python, "-I", repo / "tests/test_sdk.py", "SmokeTests"], repo)
+                        run([python, "-I", repo / "tests/test_sdk.py", "VendorTests"], repo)
+                    for opt in ("-O0", "-O2"):
+                        run([python, "-I", repo / "tests/test_sdk.py", "SmokeTests"], repo,
+                            {"FIN_SDK_OPT": opt})
+                    entry["optimization_levels"] = ["-O0", "-O2"]
                 elif name == "Linf":
                     for opt in ("-O0", "-O2"):
                         run([python, "-I", repo / "tests/run.py", "--finc", compiler,
