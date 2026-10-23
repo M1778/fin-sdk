@@ -60,5 +60,8 @@ jobs:
       - name: Exercise compiler artifact provenance rejection
         run: python3 -I tests/test_compiler_provenance.py
 
+      - name: Verify immutable ecosystem revision inventory
+        run: python3 -I tests/test_ecosystem_revisions.py
+
       - name: Bundle still matches its source
         run: git diff --exit-code lib MANIFEST.md

@@ -103,6 +103,8 @@ jobs:
           gh run download "$FIN_CI_RUN" --repo M1778/Fin --name 'ci-${{ matrix.platform }}' --dir toolchain/bin
       - name: Check compiler provenance guard
         run: python -I ecosystem/fin-sdk/tests/test_compiler_provenance.py
+      - name: Check immutable ecosystem revision inventory
+        run: python -I ecosystem/fin-sdk/tests/test_ecosystem_revisions.py
       - name: Checkout exact ecosystem revisions
         run: python -I ecosystem/fin-sdk/tests/checkout_ecosystem.py --root ecosystem --revisions ecosystem/fin-sdk/tests/ecosystem-revisions.json
       - name: Compile and run native ecosystem

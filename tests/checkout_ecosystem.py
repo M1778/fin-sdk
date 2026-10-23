@@ -4,11 +4,20 @@ from pathlib import Path
 import re
 import subprocess
 
+def unique_revisions(pairs):
+    result = {}
+    for name, revision in pairs:
+        if name in result:
+            raise ValueError(f"Duplicate revision entry: {name}")
+        result[name] = revision
+    return result
+
+
 parser = argparse.ArgumentParser(description="Check out the exact public Fin ecosystem revisions used by native CI")
 parser.add_argument("--root", type=Path, required=True)
 parser.add_argument("--revisions", type=Path, required=True)
 args = parser.parse_args()
-revisions = json.loads(args.revisions.read_text(encoding="utf-8"))
+revisions = json.loads(args.revisions.read_text(encoding="utf-8"), object_pairs_hook=unique_revisions)
 root = args.root.resolve()
 allowed = {"fin-auth", "fin-websocket", "fin-validate", "template", "zhttp", "finson",
            "fin-crypto", "fin-ssg", "fin-kv", "logg", "xtest", "Linf"}
