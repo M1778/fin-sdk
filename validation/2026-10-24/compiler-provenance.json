@@ -1,0 +1,46 @@
+{
+  "id": 40028977601,
+  "head_sha": "5360b051b8e82a4f10052c3dbb77bc66cc727cd7",
+  "status": "completed",
+  "conclusion": "success",
+  "event": "workflow_dispatch",
+  "html_url": "https://github.com/M1778/Fin/actions/runs/40028977601",
+  "jobs": [
+    {
+      "name": "build.sh runs as committed",
+      "conclusion": "success"
+    },
+    {
+      "name": "linux-x86_64",
+      "conclusion": "success"
+    },
+    {
+      "name": "perf signal (optional)",
+      "conclusion": "success"
+    },
+    {
+      "name": "sanitizers (ASan+UBSan, optional)",
+      "conclusion": "success"
+    },
+    {
+      "name": "macos-arm64",
+      "conclusion": "success"
+    },
+    {
+      "name": "windows-arm64",
+      "conclusion": "success"
+    },
+    {
+      "name": "windows-x86_64",
+      "conclusion": "success"
+    },
+    {
+      "name": "macos-x86_64",
+      "conclusion": "success"
+    },
+    {
+      "name": "linux-arm64",
+      "conclusion": "success"
+    }
+  ]
+}

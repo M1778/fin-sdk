@@ -128,6 +128,13 @@ stdlib fallback is added to these SDK smoke builds.
 
 ## Native ecosystem CI
 
+**All 13 projects passed on all six native hosts** in
+[run 40034937084](https://github.com/M1778/fin-sdk/actions/runs/40034937084):
+Linux, macOS and Windows, each on x86-64 and ARM64. O0/O2 executable tests were
+run, not just type checks. Exact tested commits, compiler provenance and
+platform-specific coverage are saved in [the validation record](validation/2026-10-24/README.md).
+The compiler candidate is verified CI output, not a released compiler.
+
 `.github/workflows/ecosystem.yml` runs native x86-64 and ARM64 jobs on Linux,
 macOS, and Windows. It downloads artifacts from an explicitly pinned successful
 Fin CI run, verifies the compiler source SHA and event, and checks out the exact

@@ -1,0 +1,101 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "ARM64",
+  "compiler": "C:\\a\\fin-sdk\\fin-sdk\\toolchain\\bin\\finc.exe",
+  "projects": [
+    {
+      "project": "fin-crypto",
+      "revision": "b79d5ed5a408f2b306ec06c8b6f85231bcee1c54",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 10.672
+    },
+    {
+      "project": "finson",
+      "revision": "3ec90fe94643404c06349ceb6fcc004ad89ca5c3",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 1.406
+    },
+    {
+      "project": "fin-validate",
+      "revision": "2bb0927e1ae658bb87750d5100d78aeed606bc6c",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 0.859
+    },
+    {
+      "project": "template",
+      "revision": "eb575d82de40c4a720d80bb15500a48a2037edb6",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 0.516
+    },
+    {
+      "project": "logg",
+      "revision": "12b5550c2173bbe948e6385a8b49c8db4129112e",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 3.563
+    },
+    {
+      "project": "xtest",
+      "revision": "ef155850d8d79a0822427ffff488698910f18ccf",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 2.062
+    },
+    {
+      "project": "fin-auth",
+      "revision": "7b997f79b8fae031cbddfe54cce8ca59476a01af",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 24.531
+    },
+    {
+      "project": "zhttp",
+      "revision": "5f6746da3a2294804c42534ba44a066c6b6705c8",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 8.625
+    },
+    {
+      "project": "fin-websocket",
+      "revision": "b3648bb633f04c48de98c06a19143d2169276be6",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 2.297
+    },
+    {
+      "project": "fin-kv",
+      "revision": "121e5ac766045a005e04bc12ff2a7245180d5359",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 9.156
+    },
+    {
+      "project": "fin-ssg",
+      "revision": "0be0662358935ff26e28f40948b297e4e43e94cd",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 12.282
+    },
+    {
+      "project": "Linf",
+      "revision": "e99effd64bc6eafd9c881dccfe5b2cd82156e8c3",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 19.984
+    },
+    {
+      "project": "fin-sdk",
+      "revision": "909ffd84af0fc28610ab9f41117379a48c6846fe",
+      "dirty": false,
+      "status": "passed",
+      "seconds": 0.453
+    }
+  ],
+  "compiler_capabilities": {
+    "FIN_TARGET_WINDOWS": true
+  }
+}
