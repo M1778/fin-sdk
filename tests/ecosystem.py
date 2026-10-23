@@ -10,10 +10,6 @@ import time
 
 PROJECTS = ["fin-crypto", "finson", "fin-validate", "template", "logg", "xtest",
             "fin-auth", "zhttp", "fin-websocket", "fin-kv", "fin-ssg", "Linf", "fin-sdk"]
-# Projects with no native transport or filesystem implementation for this
-# platform yet. A project here is reported "unsupported", never "passed" --
-# an unsupported project is not a portability result.
-LINUX_ONLY = set()
 
 
 def main():
@@ -68,10 +64,6 @@ def main():
             repo = root / name
             entry = {"project": name}
             report["projects"].append(entry)
-            if name in LINUX_ONLY and platform.system() != "Linux":
-                entry.update(status="unsupported", reason="Linux-specific transport/filesystem or POSIX linter contract; not a portability pass")
-                print(f"UNSUPPORTED {name}: {entry['reason']}", flush=True)
-                continue
             started = time.monotonic()
             try:
                 entry["revision"] = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()

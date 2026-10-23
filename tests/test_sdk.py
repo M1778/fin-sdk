@@ -322,7 +322,7 @@ class SmokeTests(unittest.TestCase):
 
     def test_starter_sdk_only(self):
         with tempfile.TemporaryDirectory(prefix="fin-sdk-starter-test-") as directory:
-            output = Path(directory) / "starter"
+            output = Path(directory) / ("starter.exe" if os.name == "nt" else "starter")
             self.build("templates/cdk-tool/main.fin", output)
             result = run([str(output)], cwd=directory, env=self.env)
             self.assertEqual(result.returncode, 0, result.stderr)
@@ -331,7 +331,7 @@ class SmokeTests(unittest.TestCase):
 
     def test_proof_sdk_only_findings_clean_and_missing_fixture(self):
         with tempfile.TemporaryDirectory(prefix="fin-sdk-proof-test-") as directory:
-            output = Path(directory) / "proof"
+            output = Path(directory) / ("proof.exe" if os.name == "nt" else "proof")
             self.build("proof/linf_first_rules.fin", output)
             sample = Path(directory) / "sample_input.fin"
             shutil.copyfile(ROOT / "proof/sample_input.fin", sample)

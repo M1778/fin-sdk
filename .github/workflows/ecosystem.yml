@@ -67,6 +67,8 @@ jobs:
           repository: M1778/Fin
           ref: ${{ env.FIN_REF }}
           path: toolchain/source
+          sparse-checkout: lib/std
+          sparse-checkout-cone-mode: true
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
