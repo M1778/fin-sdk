@@ -88,7 +88,7 @@ jobs:
         run: |
           gh api "repos/M1778/Fin/actions/runs/$FIN_CI_RUN" > compiler-run.json
           gh api --paginate "repos/M1778/Fin/actions/runs/$FIN_CI_RUN/jobs?per_page=100" --jq '.jobs[]' | jq -s . > compiler-jobs.json
-          python -I -c 'import json; p="compiler-run.json"; r=json.load(open(p)); r["jobs"]=json.load(open("compiler-jobs.json")); json.dump(r,open(p,"w"))'
+          python -I -c 'import json; p="compiler-run.json"; r=json.load(open(p,encoding="utf-8")); r["jobs"]=json.load(open("compiler-jobs.json",encoding="utf-8")); json.dump(r,open(p,"w",encoding="utf-8"))'
           python -I ecosystem/fin-sdk/tests/compiler_provenance.py compiler-run.json "$FIN_REF" '${{ matrix.platform }}'
       - name: Cache native compiler artifact
         id: compiler
