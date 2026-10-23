@@ -2,7 +2,7 @@
 
 ## Result
 
-**All 13 projects passed on all six native platforms** in [ecosystem run 40034937084](https://github.com/M1778/fin-sdk/actions/runs/40034937084). This is 78 project/platform results, with O0/O2 executable test coverage—not just parsing or code generation.
+**All 13 projects passed on all six native platforms** in [ecosystem run 40034937084](https://github.com/M1778/fin-sdk/actions/runs/40034937084). This is 78 successful project/platform results from executable tests—not just parsing or code generation. The twelve sibling projects ran O0/O2 suites. A final audit added explicit O0/O2 SDK smoke examples in the supplemental run described below; the original SDK smoke had used the compiler's default optimization.
 
 | Native platform | Projects passed |
 |---|---:|
@@ -45,6 +45,18 @@ The GitHub run contains full logs and the native report artifacts. The saved rep
 - Static site generator: rendering, input/output limits, metadata escaping, symlink/reparse refusal, hardlink-safe per-file replacement and native filesystem ABI tests. RLIMIT_FSIZE, impossible Windows command-line sizes and filesystem-specific case-collision fixtures report skips where unavailable.
 - Linf: portable CLI, shell-free native capture, exact executable/source paths, PATH lookup outside cwd, byte-preserving JSONL, Unicode and malformed/missing-summary integrity, all output formats, imports and bounded diagnostics. POSIX runs 61 contract regressions; Windows runs 60 and explicitly skips the POSIX signal-termination case.
 - SDK: smoke examples execute on all hosts using only the immutable SDK bundle. Linux also runs 28 vendoring/provenance failure and rollback tests. Additional regression tests cover compiler artifact provenance rejection and exact immutable ecosystem revision inventory.
+
+## SDK optimization supplement
+
+The full ecosystem run's SDK smoke used the compiler's default optimization.
+`tests/test_sdk.py` now receives an explicit `FIN_SDK_OPT`, and the ecosystem
+runner executes SDK-only starter/proof smoke at both `-O0` and `-O2`.
+[Supplemental native run 40036903568](https://github.com/M1778/fin-sdk/actions/runs/40036903568)
+uses the same verified compiler and unchanged immutable SDK bundle; the exact
+SDK workflow revision is `3c15905a7b023a0cffc9d66ea17bed276405aeea`.
+Its six native jobs all passed, and the [saved per-platform reports](sdk-optimization/)
+record both optimization levels explicitly. This closes the optimization-level
+coverage gap without altering any sibling library or the SDK's vendored modules.
 
 ## Fixes discovered by native validation
 

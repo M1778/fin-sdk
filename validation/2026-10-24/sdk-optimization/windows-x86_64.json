@@ -1,0 +1,21 @@
+{
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "machine": "AMD64",
+  "compiler": "D:\\a\\fin-sdk\\fin-sdk\\toolchain\\bin\\finc.exe",
+  "projects": [
+    {
+      "project": "fin-sdk",
+      "revision": "3c15905a7b023a0cffc9d66ea17bed276405aeea",
+      "dirty": false,
+      "optimization_levels": [
+        "-O0",
+        "-O2"
+      ],
+      "status": "passed",
+      "seconds": 1.625
+    }
+  ],
+  "compiler_capabilities": {
+    "FIN_TARGET_WINDOWS": true
+  }
+}

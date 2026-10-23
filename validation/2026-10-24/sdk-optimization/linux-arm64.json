@@ -1,0 +1,21 @@
+{
+  "platform": "Linux-6.17.0-1022-azure-aarch64-with-glibc2.39",
+  "machine": "aarch64",
+  "compiler": "/home/runner/work/fin-sdk/fin-sdk/toolchain/bin/finc",
+  "projects": [
+    {
+      "project": "fin-sdk",
+      "revision": "3c15905a7b023a0cffc9d66ea17bed276405aeea",
+      "dirty": false,
+      "optimization_levels": [
+        "-O0",
+        "-O2"
+      ],
+      "status": "passed",
+      "seconds": 4.709
+    }
+  ],
+  "compiler_capabilities": {
+    "FIN_TARGET_LINUX": true
+  }
+}

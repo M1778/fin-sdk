@@ -1,0 +1,21 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "ARM64",
+  "compiler": "C:\\a\\fin-sdk\\fin-sdk\\toolchain\\bin\\finc.exe",
+  "projects": [
+    {
+      "project": "fin-sdk",
+      "revision": "3c15905a7b023a0cffc9d66ea17bed276405aeea",
+      "dirty": false,
+      "optimization_levels": [
+        "-O0",
+        "-O2"
+      ],
+      "status": "passed",
+      "seconds": 1.89
+    }
+  ],
+  "compiler_capabilities": {
+    "FIN_TARGET_WINDOWS": true
+  }
+}

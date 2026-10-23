@@ -1,0 +1,21 @@
+{
+  "platform": "macOS-15.7.9-arm64-arm-64bit",
+  "machine": "arm64",
+  "compiler": "/Users/runner/work/fin-sdk/fin-sdk/toolchain/bin/finc",
+  "projects": [
+    {
+      "project": "fin-sdk",
+      "revision": "3c15905a7b023a0cffc9d66ea17bed276405aeea",
+      "dirty": false,
+      "optimization_levels": [
+        "-O0",
+        "-O2"
+      ],
+      "status": "passed",
+      "seconds": 1.232
+    }
+  ],
+  "compiler_capabilities": {
+    "FIN_TARGET_DARWIN": true
+  }
+}
