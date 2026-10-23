@@ -1,9 +1,9 @@
 {
   "fin-auth": "7b997f79b8fae031cbddfe54cce8ca59476a01af",
-  "fin-websocket": "68caa0d40ec8a76e0c2a33cd298f0a860df97125",
+  "fin-websocket": "b3648bb633f04c48de98c06a19143d2169276be6",
   "fin-validate": "2bb0927e1ae658bb87750d5100d78aeed606bc6c",
   "template": "eb575d82de40c4a720d80bb15500a48a2037edb6",
-  "zhttp": "4e486903ac5c0156b0b354cc4462ca6c08ea322b",
+  "zhttp": "5f6746da3a2294804c42534ba44a066c6b6705c8",
   "finson": "3ec90fe94643404c06349ceb6fcc004ad89ca5c3",
   "fin-crypto": "b79d5ed5a408f2b306ec06c8b6f85231bcee1c54",
   "fin-ssg": "0be0662358935ff26e28f40948b297e4e43e94cd",

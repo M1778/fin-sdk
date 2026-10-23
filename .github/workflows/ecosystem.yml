@@ -19,7 +19,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: native-ecosystem-${{ github.ref }}
+  group: native-ecosystem-${{ github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 
 env:
