@@ -129,23 +129,21 @@ stdlib fallback is added to these SDK smoke builds.
 ## Native ecosystem CI
 
 `.github/workflows/ecosystem.yml` runs native x86-64 and ARM64 jobs on Linux,
-macOS, and Windows. It uses the compiler artifacts from successful Fin run
-`39486020060`, verifies their source is commit
-`1f7afd97ab5ad520b78db3140d4f930aaeb74d1b`, and checks out the exact sibling
-revisions in `tests/ecosystem-revisions.json`. Expired artifacts fail setup;
-they are never replaced silently with a moving compiler build.
+macOS, and Windows. It downloads artifacts from an explicitly pinned successful
+Fin CI run, verifies the compiler source SHA and event, and checks out the exact
+sibling revisions in `tests/ecosystem-revisions.json`. A dispatched run can use
+a verified compiler candidate without changing or rebuilding Fin here; this is
+not a compiler release claim. Expired artifacts fail setup rather than silently
+selecting a moving compiler.
 
-`tests/ecosystem.py` first builds and runs a native executable, then exercises
-the supported projects at O0/O2 and uploads per-platform JSON results. Portable
-libraries run on all six hosts. zhttp and fin-websocket select their socket ABI
-for the native target and run on all six hosts too; fin-websocket's socket
-suite uses POSIX mechanisms (socketpair, fork, alarm) and therefore runs on
-Linux only, where the portable suite is what proves the module elsewhere.
-fin-kv, fin-ssg and Linf still have Linux-specific implementation or test
-contracts and run on both Linux architectures; other hosts record them as
-**unsupported**, never passed.
-SDK smoke examples run on all hosts, while vendoring fault-injection tests run
-on Linux. This matrix does not fix or certify Fin's separate release packaging.
+`tests/ecosystem.py` builds and executes a native smoke program, then exercises
+all thirteen projects at O0/O2. zhttp and fin-websocket share platform-correct
+socket handles; WebSocket socket tests use loopback and worker threads. fin-kv,
+fin-ssg and Linf now have native Windows/macOS implementations and portable
+Python test entry points. Platform-specific fault injection and unavailable
+operations are explicitly reported as skips, never equivalent full coverage.
+SDK smoke examples run on all hosts; vendoring fault-injection tests run on
+Linux. This matrix does not modify Fin or certify its release packaging.
 
 Run against local sibling checkouts with an explicit compiler and libraries:
 
@@ -154,13 +152,9 @@ python3 -I tests/ecosystem.py --root /path/to/checkouts --finc /path/to/finc \
   --fin-libs /path/to/Fin/lib/std --report /tmp/ecosystem-results.json
 ```
 
-The report records tested commit IDs and distinguishes failed, passed, blocked,
-and unsupported projects. A compiled runtime probe checks the host's
-`FIN_TARGET_*` macro. The pinned published compiler currently lacks these
-macros: Windows crypto/auth/logging and macOS auth/logging are compiler-blocked.
-They are still attempted, their errors are recorded, and blocked results fail
-the job rather than appearing green. A compiler that publishes the selectors
-removes that block -- the branch is `M1778/Fin@feature/target-selectors`, and
-the workflow's `FIN_REF`/`FIN_CI_RUN` point at the compiler revision whose
-artifacts the matrix downloads. Native Windows/macOS status comes from the
-workflow run, not Linux type checking.
+The report records exact commit IDs, dirty-checkout status and per-project
+passed/failed/blocked results. A runtime probe checks the host's `FIN_TARGET_*`
+selector; a missing selector fails before attempting a platform-dependent
+library with the wrong fallback ABI. Native status comes from executable tests
+on that host, not Linux type checking. Compiler blockers belong to the compiler
+agent; ecosystem fixes and coordinated pins belong to these repositories.
