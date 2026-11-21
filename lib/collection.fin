@@ -1,4 +1,37 @@
+// =============================================================================
+// Fin Programming Language Compiler
+//
+// Made with ❤️ for someone special.
+//
+// This project is genuinely built on love and dedication, a way to express your love can be done through Fin.
+// Fin is a semi-object-orientated programming language that specialized in control, giving so much control to the user while asking for the bare minimum.
+// Fin is the name of the Angel from BlackNightmare-Stories not yet published.
+// “Love is the reason this project exists”
+// -----------------------------------------------------------------------------
+// Author: M1778
+// Repository: https://github.com/M1778/Fin
+// Profile: https://github.com/M1778M/
+// -----------------------------------------------------------------------------
+// Copyright (C) 2027 M1778
+//
+// This file is part of the Fin Programming Language Compiler.
+//
+// Fin is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Fin is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Fin.  If not, see <https://www.gnu.org/licenses/>.
+//
 // SPDX-License-Identifier: GPL-3.0-or-later
+// =============================================================================
+
 // The dynamic array.
 //
 // tests/samples/stdlib/collection.fin is the specification. `Collection` is the
@@ -11,7 +44,10 @@
 // `pop_last`, `get`, `len`, `__get`, `__set`, the two operators and `from_prototype`
 // all keep their signatures, because four samples and `hashmap.fin` call them. What is
 // new: `insert`, `remove`, `clear`, `is_empty`, `first`, `last`, `contains`,
-// `index_of`, `reverse`, `extend`, `set`, `capacity` and `reserve`.
+// `index_of`, `reverse`, `extend`, `set`, `capacity`, `reserve` and `free_collection`.
+// `free_collection` releases the buffer and resets this collection to empty;
+// cleanup may be repeated, and later writes allocate a fresh buffer. Stored values
+// remain the caller's. Copies share storage, so only one copy may own its cleanup.
 //
 // GROWTH IS HONEST ABOUT ITSELF. `capacity()` reports `self._arr.length` -- the real
 // extent of the buffer -- and `len()` reports how much of it is filled. They differ,
@@ -119,6 +155,7 @@ pub struct Collection<T> : <Index, IndexAssign> {
       fun push(self: &Self, item: T) <noret> {
         self.ensure();
         if (self.filled >= self._arr.length) {
+            blame self._arr.length <= 1073741823, "collection capacity overflow";
             self.allocate(self._arr.length * 2);
         }
         self._arr[self.filled] = item;
@@ -128,6 +165,7 @@ pub struct Collection<T> : <Index, IndexAssign> {
       // Grow to hold at least `amount` elements without further allocation. A caller
       // who knows how many elements are coming pays one copy instead of log n.
       fun reserve(self: &Self, amount: int) <noret> {
+        blame amount >= 0, "collection capacity cannot be negative";
         self.ensure();
         if (amount > self._arr.length) { self.allocate(amount); }
       }
@@ -187,6 +225,7 @@ pub struct Collection<T> : <Index, IndexAssign> {
         blame index >= 0, "Index out of bounds";
         blame index <= self.filled, "Index out of bounds";
         if (self.filled >= self._arr.length) {
+            blame self._arr.length <= 1073741823, "collection capacity overflow";
             self.allocate(self._arr.length * 2);
         }
         for (let i <int> = self.filled; i > index; i--) {
@@ -211,10 +250,15 @@ pub struct Collection<T> : <Index, IndexAssign> {
       }
 
       // Forgets every element without freeing the buffer, so a cleared collection can
-      // be refilled without allocating. Freeing it would need `delete self._arr` and a
-      // way to say "and never touch it again", which is `release`'s problem in
-      // stdptr.fin and not solved here either.
+      // be refilled without allocating. `free_collection` also releases the buffer.
       fun clear(self: &Self) <noret> {
+        self.filled = 0;
+      }
+
+      pub fun free_collection(self: &Self) <noret> {
+        if (self._arr != null) { delete self._arr; }
+        let empty <[T]>;
+        self._arr = empty;
         self.filled = 0;
       }
 
@@ -235,6 +279,7 @@ pub struct Collection<T> : <Index, IndexAssign> {
       // extending by n costs one copy rather than log n.
       fun extend(self: &Self, other: &Collection<T>) <noret> {
         let n <int> = other.len();
+        blame n <= 2147483647 - self.filled, "collection capacity overflow";
         self.reserve(self.filled + n);
         for (let i <int> = 0; i < n; i++) {
             self.push(other.get(i));
